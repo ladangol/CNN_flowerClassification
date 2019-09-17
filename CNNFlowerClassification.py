@@ -33,10 +33,6 @@ def load_imagedata(path):
     return X_train, X_test,y_train, y_test
 
 
-
-# In[110]:
-
-
 path = "flowers17_dataset/"
 
 X_train, X_test, y_train, y_test = load_imagedata(path)
@@ -51,18 +47,22 @@ def create_CNNmodel(bath_size, epochs, num_classes):
     model = Sequential()
     model.add(Conv2D(32, (3,3), padding = 'same', input_shape = X_train.shape[1:]))
     model.add(Activation('relu'))
+    model.add(Conv2D(32, (3,3)))
+    model.add(Activation('relu'))
     model.add(MaxPooling2D(pool_size = (2,2)))
     model.add(Dropout(0.3))
 
-    model.add(Conv2D(64, (3,3), padding = 'same'))
+    model.add(Conv2D(64, (5,5), padding = 'same'))
     model.add(Activation('relu'))
-    model.add(Conv2D(64, (3,3)))
+    model.add(Conv2D(64, (5,5)))
     model.add(Activation('relu'))
     model.add(MaxPooling2D(pool_size = (2,2)))
-    model.add(Dropout(0.5))
+    model.add(Dropout(0.3))
 
     model.add(Flatten())
     model.add(Dense(512))
+    model.add(Activation('relu'))
+    model.add(Dense(256))
     model.add(Activation('relu'))
     model.add(Dropout(0.5))
     model.add(Dense(num_classes))
@@ -79,6 +79,16 @@ epochs = 100
 num_classes = 17
 model = create_CNNmodel(bath_size = batch_size, epochs= epochs, num_classes=num_classes)
 #saving the best model
+
+#datagen = ImageDataGenerator(rescale=1./255,
+#        shear_range=0.2,
+#        zoom_range=0.2,
+#        horizontal_flip=True)
+
+#train_set = datagen.fit(X_train)
+#test_datagen = ImageDataGenerator(rescale=1./255)
+#test_Set = test_datagen.fit(X_test)
+
 
 filepath="weights.best.hdf5"
 checkpoint = ModelCheckpoint(filepath, monitor='val_acc', verbose=1, save_best_only=True, mode='max')
