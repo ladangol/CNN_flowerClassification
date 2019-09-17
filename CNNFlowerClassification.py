@@ -8,7 +8,7 @@ from sklearn.model_selection import train_test_split
 
 import keras
 from keras.models import Sequential
-from keras.layers import Dense, Dropout, Activation, Flatten
+from keras.layers import Dense, Dropout, Activation, Flatten,BatchNormalization
 from keras.layers import Conv2D, MaxPooling2D
 from keras.callbacks import ModelCheckpoint
 
@@ -47,15 +47,19 @@ def create_CNNmodel(bath_size, epochs, num_classes):
     model = Sequential()
     model.add(Conv2D(32, (3,3), padding = 'same', input_shape = X_train.shape[1:]))
     model.add(Activation('relu'))
+    model.add(BatchNormalization())
     model.add(Conv2D(32, (3,3)))
     model.add(Activation('relu'))
+    model.add(BatchNormalization())
     model.add(MaxPooling2D(pool_size = (2,2)))
     model.add(Dropout(0.3))
 
     model.add(Conv2D(64, (5,5), padding = 'same'))
     model.add(Activation('relu'))
+    model.add(BatchNormalization())
     model.add(Conv2D(64, (5,5)))
     model.add(Activation('relu'))
+    model.add(BatchNormalization())
     model.add(MaxPooling2D(pool_size = (2,2)))
     model.add(Dropout(0.5))
 
@@ -81,10 +85,10 @@ num_classes = 17
 model = create_CNNmodel(bath_size = batch_size, epochs= epochs, num_classes=num_classes)
 #saving the best model
 
-#datagen = ImageDataGenerator(rescale=1./255,
-#        shear_range=0.2,
-#        zoom_range=0.2,
-#        horizontal_flip=True)
+datagen = ImageDataGenerator(rescale=1./255,
+        shear_range=0.2,
+        zoom_range=0.2,
+        horizontal_flip=True)
 
 #train_set = datagen.fit(X_train)
 #test_datagen = ImageDataGenerator(rescale=1./255)
@@ -95,6 +99,6 @@ filepath="weights.best.hdf5"
 checkpoint = ModelCheckpoint(filepath, monitor='val_acc', verbose=1, save_best_only=True, mode='max')
 callbacks_list = [checkpoint]
 # Fit the model
-model.fit(X_train, y_train,
+model.fit_generator(datagen.flow(X_train, y_train,
           validation_data = (X_test, y_test), epochs=epochs, batch_size=batch_size, callbacks=callbacks_list,
           verbose=0, shuffle = True)
